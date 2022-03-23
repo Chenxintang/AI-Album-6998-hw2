@@ -1,10 +1,10 @@
-version: 0.2
+version: 0.1
 phases:
   install:
     commands:
-      - aws cloudformation package --template-file hw2-lambda-cft.yaml --s3-bucket codebuild-hw2-lambda --output-template-file packaged.yaml
+      - aws cloudformation package --template-file samTemplate.yaml --s3-bucket 6998-assignment2-b2 --output-template-file outputsamtemplate.yml
 artifacts:
   type: zip
   files:
-    - hw2-lambda-cft.yaml
-    - packaged.yaml
+    - samTemplate.yaml
+    - outputsamtemplate.yml
