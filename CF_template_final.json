@@ -1,0 +1,104 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Resources": {
+        "indexphotos": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "S3Bucket": "s3-lambda-pipeline-bucket",
+                    "S3Key": "index-photos_LF1.zip"
+                },
+                "Description": "",
+                "MemorySize": 128,
+                "Environment": {
+                    "Variables": {
+                        "REGION": "us-east-1"
+                    }
+                },
+                "Handler": "lambda_function.lambda_handler",
+                "Role": "arn:aws:iam::145273014019:role/service-role/index-photos_LF1-role-7jcliwsm",
+                "Timeout": 30,
+                "Runtime": "python3.9",
+                "FunctionName": "indexPhotoFunctional"
+            }
+        },
+        "searchphotos": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "S3Bucket": "s3-lambda-pipeline-bucket",
+                    "S3Key": "search-photos_LF2.zip"
+                },
+                "Description": "Lambda function for CD Demo",
+                "MemorySize": 128,
+                "Environment": {
+                    "Variables": {
+                        "REGION": "us-east-1"
+                    }
+                },
+                "Handler": "lambda_function.lambda_handler",
+                "Role": "arn:aws:iam::145273014019:role/service-role/search-photos_LF2-role-7g6hylc1",
+                "Timeout": 30,
+                "Runtime": "python3.9",
+                "FunctionName": "searchPhotosFunctional"
+            }
+        },
+        "OpenAPI": {
+            "Type": "AWS::ApiGateway::RestApi",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "Description": "AI Photo Album App API",
+                "Name": "TestAPI2",
+                "CloneFrom": "ryl86gghwl"
+            }
+        },
+        "ServerlessRestApiDeploymentb2888a1f04": {
+            "Type": "AWS::ApiGateway::Deployment",
+            "Properties": {
+                "RestApiId": {
+                    "Ref": "OpenAPI"
+                },
+                "Description": "RestApi deployment",
+                "StageName": "test-stage"
+            }
+        },
+        
+        "searchPhotosLambdaAPIPermissionProd": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "FunctionName": {
+                    "Ref": "searchphotos"
+                },
+                "SourceArn": {
+                    "Fn::Sub": [
+                        "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/${__Stage__}/GET/search",
+                        {
+                            "__Stage__": "*",
+                            "__ApiId__": {
+                                "Ref": "OpenAPI"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "photosBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": "b2-cloudformation"
+            }
+        },
+         "ESInstance": {
+            "Type": "AWS::Elasticsearch::Domain",
+            "Properties": {
+                "DomainName": "photo-cloudformation",
+                "ElasticsearchClusterConfig": {
+                    "InstanceType": "m3.medium.elasticsearch"
+                }
+            }
+        }
+    }
+}
