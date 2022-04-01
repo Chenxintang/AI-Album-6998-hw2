@@ -10,6 +10,7 @@ from requests_aws4auth import AWS4Auth
 from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
 
 print('Loading function')
+# any comment
 
 s3 = boto3.client('s3')
 eastern = dateutil.tz.gettz('US/Eastern')
